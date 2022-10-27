@@ -11,6 +11,7 @@ They get an output in json so i can read it with KLWP in android.
 - w3m
 - pip ndicts
 
-#To do
+# To do
 - KLWP file.
 - Planetary hours.
+- Moon phases.
