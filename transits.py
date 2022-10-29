@@ -36,7 +36,7 @@ def symbols(string):
         .replace("Virgo", "♍")
         .replace("Libra", "♎")
         .replace("Scorpio", "♏")
-        .replace("Sagitarius", "♐")
+        .replace("Sagittarius", "♐")
         .replace("Capricorn", "♑")
         .replace("Aquarius", "♒")
         .replace("Pisces", "♓")
