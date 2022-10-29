@@ -15,3 +15,4 @@ They get an output in json so i can read it with KLWP in android.
 - KLWP file.
 - Planetary hours.
 - Moon phases.
+:D
