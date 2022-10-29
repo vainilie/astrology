@@ -59,8 +59,7 @@ date = re.search(
     r"\w+ \d+\, \d+\, \d+\:\d+ \(UT\/GMT\)", positionsRaw[0], re.IGNORECASE
 )
 positionsRaw = positionsRaw[0].split("[OK]\n")
-updated = dateConv(date.group())
-print(updated)
+updated = dateConv(date.group()).strftime("%YY%mM%dD%Hh%Mm")
 
 positions = re.sub(r"\n \n", r"|", positionsRaw[1])
 positions = re.sub(r"\nR\n", r"Rx|", positions)
@@ -84,7 +83,6 @@ for planets in positions:
     else:
         pla.update({"rx": False})
     current.append(pla)
-    print(pla)
 
 transits = {}
 transits.update({"date": str(updated), "planets": current, "source": webpage})
