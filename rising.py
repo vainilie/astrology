@@ -16,7 +16,9 @@ webpage = "https://cafeastrology.com/scorpio_horoscopes.html"
 def dateConv(utc):
     """convert time"""
     utc_time = dateutil.parser.parse(utc)
-    return utc_time.astimezone().replace(microsecond=0)
+    date = utc_time.astimezone().replace(microsecond=0)
+    date = date
+    return date
 
 
 subprocess = subprocess.Popen(f"w3m {webpage}", shell=True, stdout=subprocess.PIPE)
@@ -44,29 +46,67 @@ for x in positionsRaw:
         about = date[1].split(")")
         aspect = about[1].strip()
         about = about[0].strip()
-        date = dateConv(date[0])
+        date1 = dateConv(date[0].strip())
+        date = about.split("to")
+        date_start = dateConv(date[0].strip())
+        date_end = dateConv(date[1].strip())
         content = " ".join(x[1:])
         content = re.sub(r" +", " ", content).strip()
-        entry.update({"date": date, "text": content, "info": about, "aspects": aspect})
+        entry.update(
+            {
+                "date": date1,
+                "text": content,
+                "date-st": date_start,
+                "date-end": date_end,
+                "_date": date1.strftime("%YY%mM%dD%Hh%Mm"),
+                "_start": date_start.strftime("%YY%mM%dD%Hh%Mm"),
+                "_end": date_end.strftime("%YY%mM%dD%Hh%Mm"),
+                "aspects": aspect,
+            }
+        )
+
         rising.append(entry)
 
 rising.sort(key=lambda x: x["date"])
-day = defaultdict(list)
+month = defaultdict(list)
 nd = NestedDict()
 
-for entry in rising:
-    date = entry["date"]
-    y = date.strftime("%Y")
-    m = date.strftime("%y%m")
-    w = date.strftime("%y%W")
-    d = date.strftime("%y%m%d")
-    day[d].append(entry)
-    nd[y, m, w, d] = day[d]
+for idx, entry in enumerate(rising):
+    date = entry["date-st"]
+    y = int(date.strftime("%Y"))
+    m = int(date.strftime("%Y%m"))
 
+    date1 = entry["date-end"]
+    y1 = int(date1.strftime("%Y"))
+    m1 = int(date1.strftime("%Y%m"))
+    if int(m) != int(m1):
+        if int(y) != int(y1):
+            mx = int(str(m)[4:])
+            my = int(str(m1)[4:])
+            while int(mx) <= int(12):
+                month[int(str(y) + str(mx))].append(entry)
+                nd[y, int(str(y) + str(mx))] = month[int(str(y) + str(mx))]
+                mx += 1
+            while my >= 1:
+                month[int(str(y1) + str(my))].append(entry)
+                nd[y1, int(str(y1) + str(my))] = month[int(str(y1) + str(my))]
+                my -= 1
+        else:
+            mx = int(m1)
+            while mx >= int(m):
+                month[mx].append(entry)
+                nd[y, mx] = month[mx]
+                mx -= 1
+    else:
+        month[m].append(entry)
+        nd[y, m] = month[m]
+    print(f"\n---{idx}---\n")
+    print(entry)
 
+final = nd.to_dict()
 with open(output, "w", encoding="utf8") as json_file:
     json.dump(
-        nd.to_dict(),
+        final,
         json_file,
         ensure_ascii=False,
         separators=(",", ":"),
